@@ -22,6 +22,10 @@
 #include "Signals.hpp"
 #include "VirtualTap.hpp"
 
+
+#include <lwip/tcpip.h>
+#include "LwipLinuxTap.h"
+
 #include <string.h>
 
 using namespace ZeroTier;
@@ -559,9 +563,20 @@ void* _runNodeService(void* arg)
     return NULL;
 }
 
+void testtap(){
+    tcpip_init(nullptr, nullptr);
+    ip4_addr_t ipaddr, netmask, gw;
+    IP4_ADDR(&gw, 172, 2, 0, 1);
+    IP4_ADDR(&ipaddr, 172, 2, 0, 100);
+    IP4_ADDR(&netmask, 255, 255, 255, 0);
+    init_default_netif(&ipaddr, &netmask, &gw);
+    netif_set_up(&get_default_netif());
+}
+
 int zts_node_start()
 {
     ACQUIRE_SERVICE_OFFLINE();
+    testtap();
     // Start TCP/IP stack
     zts_lwip_driver_init();
     // Start callback thread
