@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.0)
-project(zt)
-find_package(Threads)
+cmake_minimum_required(VERSION 3.0) # 3.0 以上
+project(zt) # 名称
+find_package(Threads) # 链接到线程库
 
-if (USE_SANITIZER STREQUAL "Address")
+if (USE_SANITIZER STREQUAL "Address") # 似乎是与内存有关的
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 elseif (USE_SANITIZER STREQUAL "Thread")
@@ -72,7 +72,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(INTERMEDIATE_LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib/intermediate)
 if(UNIX)
-    set(LWIP_PORT_DIR ${PROJ_DIR}/ext/lwip-contrib/ports/unix/port)
+    set(LWIP_PORT_DIR ${PROJ_DIR}/ext/lwip-contrib/ports/unix/port) # port 的路径
 endif()
 
 if(BUILD_WIN)
@@ -98,7 +98,7 @@ include_directories(${PROJ_DIR}/include)
 # libzt (ext)
 include_directories(${PROJ_DIR}/ext/concurrentqueue)
 include_directories(${LWIP_SRC_DIR}/include)
-include_directories(${LWIP_PORT_DIR}/include)
+include_directories(${LWIP_PORT_DIR}/include) # port 的 include
 
 # ------------------------------------------------------------------------------
 # |                        TARGET AND VARIANT SELECTION                        |
@@ -109,7 +109,7 @@ option(ALLOW_INSTALL_TARGET     "Enable the install target"   TRUE)
 option(BUILD_STATIC_LIB         "Build static library"        TRUE)
 option(BUILD_SHARED_LIB         "Build shared libary"         TRUE)
 option(BUILD_HOST_SELFTEST      "Build host selftest binary"  TRUE)
-option(ZTS_DISABLE_CENTRAL_API  "Disable central API"         TRUE)
+option(ZTS_DISABLE_CENTRAL_API  "Disable central API"         TRUE)  #不启用 central API
 
 # C# language bindings (libzt.dll/dylib/so)
 if (ZTS_ENABLE_PINVOKE)
@@ -276,9 +276,9 @@ endif()
 # |                                BUILD TYPES                                 |
 # ------------------------------------------------------------------------------
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "debug") # build type debug
     set(BUILD_DEBUG ON)
-    set(CMAKE_VERBOSE_MAKEFILE ON)
+    set(CMAKE_VERBOSE_MAKEFILE ON) # 输出详细的编译信息
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "release")
     set(BUILD_RELEASE ON)
@@ -324,9 +324,9 @@ endif()
         ${PROJ_DIR}/examples/c/nostorage.c)
     target_link_libraries(nostorage ${STATIC_LIB_NAME})
 
-    add_executable(customroots
+    add_executable(customroots # 链接这个时候出错了
         ${PROJ_DIR}/examples/c/customroots.c)
-    target_link_libraries(customroots ${STATIC_LIB_NAME})
+    target_link_libraries(customroots ${STATIC_LIB_NAME}) # STATIC_LIB_NAME 不全
 
     add_executable(client
         ${PROJ_DIR}/examples/c/client.c)
@@ -443,8 +443,8 @@ endif()
 # ------------------------------------------------------------------------------
 # |                              OPTIONAL FEATURES                             |
 # ------------------------------------------------------------------------------
-
-if(NOT ZTS_DISABLE_CENTRAL_API)
+# 无用
+if(NOT ZTS_DISABLE_CENTRAL_API) 
     set(requiredlibs)
     find_package(CURL)
     if(CURL_FOUND)
@@ -511,17 +511,18 @@ endif() # ZTS_ENABLE_JAVA
 # ------------------------------------------------------------------------------
 # |                                   SOURCES                                  |
 # ------------------------------------------------------------------------------
-
+# ext/ztone
 file(GLOB ztcoreSrcGlob ${ZTO_SRC_DIR}/node/*.cpp
          ${ZTO_SRC_DIR}/osdep/OSUtils.cpp ${ZTO_SRC_DIR}/osdep/PortMapper.cpp)
-
+# ext/ztone/ext/ 
 file(GLOB libnatpmpSrcGlob ${ZTO_SRC_DIR}/ext/libnatpmp/natpmp.c
     ${ZTO_SRC_DIR}/ext/libnatpmp/wingettimeofday.c
     ${ZTO_SRC_DIR}/ext/libnatpmp/getgateway.c)
 if(NOT BUILD_WIN)
-list(REMOVE_ITEM libnatpmpSrcGlob ${ZTO_SRC_DIR}/ext/libnatpmp/wingettimeofday.c)
+list(REMOVE_ITEM libnatpmpSrcGlob ${ZTO_SRC_DIR}/ext/libnatpmp/wingettimeofday.c) # 非 wind 移除 ext/libnatpmp/wingettimeofday.c
 endif()
 
+# ext/ztone/ext/miniupnpc
 file(
     GLOB
     libminiupnpcSrcGlob
@@ -538,15 +539,20 @@ file(
     ${ZTO_SRC_DIR}/ext/miniupnpc/upnpdev.c
     ${ZTO_SRC_DIR}/ext/miniupnpc/upnperrors.c
     ${ZTO_SRC_DIR}/ext/miniupnpc/upnpreplyparse.c)
-
+# libzt
 file(GLOB libztSrcGlob ${LIBZT_SRC_DIR}/*.cpp ${LANG_WRAPPER_FILE})
-
+# lwipSrcGlob 还好包含了 lwip_port/sys_arch.c 但是没有其他的
 file(
     GLOB
     lwipSrcGlob
     ${LWIP_SRC_DIR}/netif/*.c
     ${LWIP_SRC_DIR}/api/*.c
     ${LWIP_PORT_DIR}/sys_arch.c
+    ${LWIP_PORT_DIR}/perf.c
+    ${LWIP_PORT_DIR}/netif/tapif.c
+    ${LWIP_PORT_DIR}/netif/list.c
+    ${LWIP_PORT_DIR}/netif/sio.c
+    ${LWIP_PORT_DIR}/netif/fifo.c
     ${LWIP_SRC_DIR}/core/*.c
     ${LWIP_SRC_DIR}/core/ipv4/*.c
     ${LWIP_SRC_DIR}/core/ipv6/*.c)
@@ -561,7 +567,7 @@ file(GLOB frameworkHeaderGlob ${frameworkPublicHeaderGlob}
 # |                     OBJECT LIBRARIES (INTERMEDIATE)                        |
 # ------------------------------------------------------------------------------
 
-if(BUILD_STATIC_LIB)
+if(BUILD_STATIC_LIB) # 编译后 obj 文件
     # zto_obj
     add_library(zto_obj OBJECT ${ztcoreSrcGlob})
     set_target_properties(zto_obj PROPERTIES COMPILE_FLAGS "${ZT_FLAGS}")
@@ -594,7 +600,7 @@ if(BUILD_STATIC_LIB)
         target_compile_definitions(miniupnpc_obj PRIVATE MACOSX)
     endif()
 
-    # lwip_obj
+    # lwip_obj 
     add_library(lwip_obj OBJECT ${lwipSrcGlob})
     set_target_properties(lwip_obj PROPERTIES COMPILE_FLAGS "${LWIP_FLAGS}")
 
@@ -653,7 +659,7 @@ if(BUILD_STATIC_LIB)
     set_target_properties(
         ztcore PROPERTIES OUTPUT_NAME ztcore LIBRARY_OUTPUT_DIRECTORY
         ${INTERMEDIATE_LIBRARY_OUTPUT_PATH})
-    # libzt.a
+    # libzt.a 包含了 lwip_pic
     add_library(
         ${STATIC_LIB_NAME} STATIC
         $<TARGET_OBJECTS:zt_pic> $<TARGET_OBJECTS:zto_pic>
