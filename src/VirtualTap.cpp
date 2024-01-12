@@ -205,6 +205,7 @@ std::vector<InetAddress> VirtualTap::ips() const
 void VirtualTap::put(const MAC& from, const MAC& to, unsigned int etherType, const void* data, unsigned int len)
 {
     if (len && _enabled) {
+        printf("to lwip len=%d\n", len);
         zts_lwip_eth_rx(this, from, to, etherType, data, len);
     }
 }
@@ -402,6 +403,7 @@ signed char zts_lwip_eth_tx(struct netif* n, struct pbuf* p)
     char* data = buf + sizeof(struct eth_hdr);
     int len = totalLength - sizeof(struct eth_hdr);
     int proto = Utils::ntoh((uint16_t)ethhdr->type);
+    printf("from lwip len=%d\n", len);
     tap->_handler(tap->_arg, NULL, tap->_net_id, src_mac, dest_mac, proto, 0, data, len);
 
     return ERR_OK;
@@ -548,6 +550,8 @@ void zts_lwip_init_interface(void* tapref, const InetAddress& ip)
         ip4.addr = *((u32_t*)ip.rawIpData());
         netmask.addr = *((u32_t*)ip.netmask().rawIpData());
         LOCK_TCPIP_CORE();
+        // 打印输出 ip4 netmask gw 真正的 十进制值
+        printf("ip4.addr=%d, netmask.addr=%d, gw.addr=%d\n", ip4.addr, netmask.addr, gw.addr);
         netif_add(n, &ip4, &netmask, &gw, (void*)vtap, zts_netif_init4, tcpip_input);
         vtap->netif4 = (void*)n;
         UNLOCK_TCPIP_CORE();
