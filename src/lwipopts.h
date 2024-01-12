@@ -79,6 +79,13 @@
 #define LWIP_NETIF_LINK_CALLBACK        0
 #define LWIP_NETIF_REMOVE_CALLBACK      0
 
+//raw
+#define LWIP_RAW                        1
+#define RAW_DEBUG                       LWIP_DBG_ON
+#define ICMP_DEBUG                      LWIP_DBG_ON
+#define IP_DEBUG                        LWIP_DBG_ON
+//FORWARD
+#define IP_FORWARD                      1
 /*------------------------------------------------------------------------------
 ------------------------------------ Presets -----------------------------------
 ------------------------------------------------------------------------------*/
