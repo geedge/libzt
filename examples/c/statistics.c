@@ -17,6 +17,15 @@ int main(int argc, char** argv)
         printf("statistics <net_id>\n");
         exit(0);
     }
+
+    int err = ZTS_ERR_OK;
+    char* storage_path = "./";
+
+    if ((err = zts_init_from_storage(storage_path)) != ZTS_ERR_OK) {
+        printf("Unable to start service, error = %d. Exiting.\n", err);
+        exit(1);
+    }
+
     long long int net_id = strtoull(argv[1], NULL, 16);   // At least 64 bits
 
     printf("Starting node...\n");
@@ -47,7 +56,7 @@ int main(int argc, char** argv)
     }
 
     printf("Waiting for address assignment from network\n");
-    int err = 0;
+    // int err = 0;
     while (! (err = zts_addr_is_assigned(net_id, ZTS_AF_INET))) {
         zts_util_delay(500);
     }
